@@ -27,6 +27,82 @@ import {timeToSecs} from './utils';
 
 import VideoPlayer from './VideoPlayer.jsx';
 import { ChevronDown } from './components/ChevronDown';
+
+// 텍스트 다운로드 및 복사 버튼 컴포넌트
+interface DownloadCopyButtonsProps {
+  content: string;
+  filename: string;
+}
+
+const DownloadCopyButtons: React.FC<DownloadCopyButtonsProps> = ({ content, filename }) => {
+  return (
+    <div style={{ 
+      display: 'flex', 
+      gap: '10px', 
+      marginTop: '20px',
+      marginBottom: '10px',
+      width: '100%'
+    }}>
+      <button
+        onClick={() => {
+          const processedContent = content.replace(/\\n/g, '\n');
+          const blob = new Blob([processedContent], { type: 'text/plain;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `${filename}_${new Date().toISOString().split('T')[0]}.txt`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }}
+        style={{
+          padding: '8px 12px',
+          backgroundColor: '#7c3aed1a',
+          color: '#7c3aed',
+          border: '1px solid rgba(124, 58, 237, 0.2)',
+          borderRadius: '12px',
+          fontSize: '14px',
+          cursor: 'pointer',
+          fontWeight: 'normal',
+          height: '48px',
+          flex: '1'
+        }}
+      >
+        📄 텍스트 다운받기
+      </button>
+      
+      <button
+        onClick={() => {
+          const processedContent = content.replace(/\\n/g, '\n');
+          navigator.clipboard.writeText(processedContent).then(() => {
+            // 복사 완료 피드백
+            const btn = document.activeElement as HTMLButtonElement;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '✅ 복사완료';
+            setTimeout(() => {
+              btn.innerHTML = originalText;
+            }, 2000);
+          });
+        }}
+        style={{
+          padding: '8px 12px',
+          backgroundColor: '#7c3aed1a',
+          color: '#7c3aed',
+          border: '1px solid rgba(124, 58, 237, 0.2)',
+          borderRadius: '12px',
+          fontSize: '14px',
+          cursor: 'pointer',
+          fontWeight: 'normal',
+          height: '48px',
+          flex: '1'
+        }}
+      >
+        📋 복사하기
+      </button>
+    </div>
+  );
+};
 import { processAudioFromArrayBuffer, AudioProcessingResult } from './audioProcessor';
 
 
@@ -1296,69 +1372,10 @@ ${referenceContent}
           
           {analysisResult && (
             <div>
-              {/* Download and Copy buttons - 블럭 밖으로 이동 */}
-              <div style={{ 
-                display: 'flex', 
-                gap: '10px', 
-                marginTop: '20px',
-                marginBottom: '10px'
-              }}>
-                <button
-                  onClick={() => {
-                    const content = analysisResult.replace(/\\n/g, '\n');
-                    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `분석결과_${selectedAnalysisType}_${new Date().toISOString().split('T')[0]}.txt`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                  }}
-                  style={{
-                    padding: '8px 12px',
-                    backgroundColor: '#7c3aed',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '12px',
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                    fontWeight: 'normal',
-                    height: '48px'
-                  }}
-                >
-                  📄 텍스트 다운받기
-                </button>
-                
-                <button
-                  onClick={() => {
-                    const content = analysisResult.replace(/\\n/g, '\n');
-                    navigator.clipboard.writeText(content).then(() => {
-                      // 복사 완료 피드백
-                      const btn = document.activeElement as HTMLButtonElement;
-                      const originalText = btn.innerHTML;
-                      btn.innerHTML = '✅ 복사완료';
-                      setTimeout(() => {
-                        btn.innerHTML = originalText;
-                      }, 2000);
-                    });
-                  }}
-                  style={{
-                    padding: '8px 12px',
-                    backgroundColor: '#7c3aed',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '12px',
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                    fontWeight: 'normal',
-                    height: '48px'
-                  }}
-                >
-                  📋 복사하기
-                </button>
-              </div>
+              <DownloadCopyButtons 
+                content={analysisResult}
+                filename={`분석결과_${selectedAnalysisType}`}
+              />
               
               <div style={{
                 padding: '15px',
@@ -1516,8 +1533,12 @@ ${referenceContent}
           
           {analysisResult2 && (
             <>
+              <DownloadCopyButtons 
+                content={analysisResult2}
+                filename={`대사쓰기_${selectedAnalysisType2}`}
+              />
+              
               <div style={{
-                marginTop: '20px',
                 padding: '15px',
                 background: '#f8f9fa',
                 border: '1px solid #dee2e6',
@@ -1658,24 +1679,30 @@ ${referenceContent}
                 )}
                 
                 {rewrittenResult && (
-                  <div style={{
-                    marginTop: '15px',
-                    padding: '15px',
-                    background: '#f0fff4',
-                    border: '1px solid #90ee90',
-                    borderRadius: '6px',
-                    color: '#333'
-                  }}>
-                    <h4 style={{ marginBottom: '10px', color: '#2d5016' }}>
-                      재작성된 대사:
-                    </h4>
-                    <div style={{ 
-                      whiteSpace: 'pre-wrap', 
-                      lineHeight: '1.7',
-                      fontSize: '15px',
+                  <div>
+                    <DownloadCopyButtons 
+                      content={rewrittenResult}
+                      filename="재작성된_대사"
+                    />
+                    
+                    <div style={{
+                      padding: '15px',
+                      background: '#f0fff4',
+                      border: '1px solid #90ee90',
+                      borderRadius: '6px',
                       color: '#333'
                     }}>
-                      {rewrittenResult.replace(/\\n/g, '\n')}
+                      <h4 style={{ marginBottom: '10px', color: '#2d5016' }}>
+                        재작성된 대사:
+                      </h4>
+                      <div style={{ 
+                        whiteSpace: 'pre-wrap', 
+                        lineHeight: '1.7',
+                        fontSize: '15px',
+                        color: '#333'
+                      }}>
+                        {rewrittenResult.replace(/\\n/g, '\n')}
+                      </div>
                     </div>
                   </div>
                 )}
@@ -1905,7 +1932,7 @@ ${referenceContent}
                   }
                   
                   setIsGeneratingVoice(true);
-                  setGeneratedAudio(null);
+                  // setGeneratedAudio(null); // 기존 오디오 UI를 유지하기 위해 주석처리
                   setDuration(0);
                   setCurrentTime(0);
                   setProcessedAudio(null);
@@ -1944,6 +1971,9 @@ ${referenceContent}
               {/* 음성 생성 로딩 메시지 */}
               {isGeneratingVoice && <LoadingMessage type="voice" />}
               
+              {/* 음성생성하기 버튼과 플레이 UI 사이 간격 */}
+              <div style={{ marginTop: '30px' }}></div>
+              
               {/* 원본 음성 플레이어 */}
               {/* TEMP: 중복 플레이어 주석처리 */}
               {/* {generatedAudio && (
@@ -1968,13 +1998,12 @@ ${referenceContent}
               {/* 무음 제거 컨트롤 */}
               {generatedAudio && (
                 <div style={{
-                  marginTop: '15px',
-                  padding: '12px',
-                  background: '#f8f9fa',
-                  border: '1px solid #dee2e6',
-                  borderRadius: '8px',
-                  display: 'flex',
-                  alignItems: 'center',
+                    padding: '12px',
+                    background: '#f8f9fa',
+                    border: '1px solid #dee2e6',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
                   gap: '12px'
                 }}>
                   {/* 플레이/일시정지 버튼 */}
@@ -2138,6 +2167,7 @@ ${referenceContent}
                   {/* 다운로드 버튼 */}
                   <button
                     onClick={() => {
+                      //// WAV 파일 다운로드
                       const audioBlob = new Blob([generatedAudio], { type: 'audio/wav' });
                       const url = URL.createObjectURL(audioBlob);
                       
@@ -2149,6 +2179,22 @@ ${referenceContent}
                       document.body.removeChild(link);
                       
                       URL.revokeObjectURL(url);
+                      
+                      //// 200ms 후 TXT 파일 연속 다운로드
+                      setTimeout(() => {
+                        const textContent = scriptText;
+                        const textBlob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+                        const textUrl = URL.createObjectURL(textBlob);
+                        
+                        const textLink = document.createElement('a');
+                        textLink.href = textUrl;
+                        textLink.download = `generated-voice-${selectedVoice}-script.txt`;
+                        document.body.appendChild(textLink);
+                        textLink.click();
+                        document.body.removeChild(textLink);
+                        
+                        URL.revokeObjectURL(textUrl);
+                      }, 200);
                     }}
                     style={{
                       padding: '8px 12px',
@@ -2223,9 +2269,9 @@ ${referenceContent}
                     style={{
                       width: '100%',
                       padding: '10px 16px',
-                      backgroundColor: isProcessingSilence ? '#6c757d' : '#7c3aed',
-                      color: 'white',
-                      border: 'none',
+                      backgroundColor: isProcessingSilence ? '#6c757d' : '#7c3aed1a',
+                      color: isProcessingSilence ? 'white' : '#7c3aed',
+                      border: isProcessingSilence ? 'none' : '1px solid rgba(124, 58, 237, 0.2)',
                       borderRadius: '12px',
                       fontSize: '14px',
                       cursor: isProcessingSilence ? 'not-allowed' : 'pointer',
@@ -2376,6 +2422,7 @@ ${referenceContent}
                         {/* 다운로드 버튼 */}
                         <button
                           onClick={() => {
+                            //// WAV 파일 다운로드 (무음제거됨)
                             const audioBlob = new Blob([processedAudio], { type: 'audio/wav' });
                             const url = URL.createObjectURL(audioBlob);
                             
@@ -2387,6 +2434,22 @@ ${referenceContent}
                             document.body.removeChild(link);
                             
                             URL.revokeObjectURL(url);
+                            
+                            //// 200ms 후 TXT 파일 연속 다운로드
+                            setTimeout(() => {
+                              const textContent = scriptText;
+                              const textBlob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+                              const textUrl = URL.createObjectURL(textBlob);
+                              
+                              const textLink = document.createElement('a');
+                              textLink.href = textUrl;
+                              textLink.download = `silence-removed-${selectedVoice}-script.txt`;
+                              document.body.appendChild(textLink);
+                              textLink.click();
+                              document.body.removeChild(textLink);
+                              
+                              URL.revokeObjectURL(textUrl);
+                            }, 200);
                           }}
                           style={{
                             padding: '8px 12px',

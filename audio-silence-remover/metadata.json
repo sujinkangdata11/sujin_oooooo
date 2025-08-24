@@ -1,0 +1,5 @@
+{
+  "name": "오디오 무음 구간 제거기 (Audio Silence Remover)",
+  "description": "WAV 또는 MP3 오디오 파일을 업로드하여 자동으로 무음 구간을 감지하고 제거합니다. 사용자는 무음으로 간주할 데시벨(dB) 임계값을 조정할 수 있으며, 처리된 오디오 파일을 미리 듣고 다운로드할 수 있습니다.",
+  "requestFramePermissions": []
+}

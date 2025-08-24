@@ -1857,7 +1857,8 @@ ${referenceContent}
               {isGeneratingVoice && <LoadingMessage type="voice" />}
               
               {/* 원본 음성 플레이어 */}
-              {generatedAudio && (
+              {/* TEMP: 중복 플레이어 주석처리 */}
+              {/* {generatedAudio && (
                 <AudioPlayer
                   title="🎵 생성된 음성"
                   audioBuffer={generatedAudio}
@@ -1874,7 +1875,7 @@ ${referenceContent}
                   downloadFileName={`generated-voice-${selectedVoice}.wav`}
                   progressColor="#007bff"
                 />
-              )}
+              )} */}
 
               {/* 무음 제거 컨트롤 */}
               {generatedAudio && (
@@ -2141,7 +2142,7 @@ ${referenceContent}
                           marginTop: '5px',
                           textAlign: 'center'
                         }}>
-                          값을 높이면(0에 가깝게) 더 많은 구간이 무음으로 처리됩니다.
+                          ⏩⏩⏩ 숫자가 0 으로 갈수록 무음처리가 더 많이됩니다.
                         </div>
                       </div>
                       

@@ -99,7 +99,7 @@ export function getGeminiVoiceName(userVoice: string): string {
  */
 export function createTTSText(userVoice: string, script: string): string {
   const config = getVoiceConfig(userVoice);
-  return `${config.voicePrompt} : ${script}`;
+  return `${config.voicePrompt} : "${script}"`;
 }
 
 /**

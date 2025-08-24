@@ -12,6 +12,12 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
+      },
+      server: {
+        hmr: {
+          timeout: 10000,
+          overlay: false
+        }
       }
     };
 });

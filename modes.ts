@@ -18,7 +18,7 @@
 // limitations under the License.
 
 export default {
-  '비디오 분석': {
+  '영상 분석': {
     emoji: '👀',
     prompt: `Generate descriptive captions for this video. For each distinct scene, provide a caption describing the visual action and including any spoken text in quotation marks. You MUST call the "set_timecodes" function, providing a list of all captions, each with its corresponding start time. 이 영상이 어떠한 상황인지 어느나라의 문화인지, 장면을 세밀하게 분석해서 모든 정보를 알려줘.`,
     isList: true,

@@ -26,6 +26,7 @@ import modes from './modes';
 import {timeToSecs} from './utils';
 
 import VideoPlayer from './VideoPlayer.jsx';
+import { ChevronDown } from './components/ChevronDown';
 import { processAudioFromArrayBuffer, AudioProcessingResult } from './audioProcessor';
 
 
@@ -186,7 +187,7 @@ ${examplesText}
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
   const [previewAudio, setPreviewAudio] = useState<HTMLAudioElement | null>(null);
   const [isPreviewPlaying, setIsPreviewPlaying] = useState<string | null>(null);
-  const [silenceThreshold, setSilenceThreshold] = useState<number>(-50);
+  const [silenceThreshold, setSilenceThreshold] = useState<number>(-30);
   const [isProcessingSilence, setIsProcessingSilence] = useState<boolean>(false);
   const [showSilenceControls, setShowSilenceControls] = useState<boolean>(false);
   const [processedAudio, setProcessedAudio] = useState<ArrayBuffer | null>(null);
@@ -974,7 +975,7 @@ ${referenceContent}
         {/* 1️⃣ 첫번째 칼럼: 비디오 플레이어 */}
         {/* ============================================ */}
         <div>
-          <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#666', marginBottom: '8px', textAlign: 'left' }}>1</div>
+          <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#666', marginBottom: '8px', textAlign: 'left' }}>1. 쇼츠 링크 입력</div>
           <div className="video-column" ref={videoColumnRef}>
             <VideoPlayer
               videoId={youtubeVideoId}
@@ -992,11 +993,11 @@ ${referenceContent}
         {/* 2️⃣ 두번째 칼럼: 분석 모드 선택 및 Generate */}
         {/* ============================================ */}
         <div>
-          <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#666', marginBottom: '8px', textAlign: 'left' }}>2</div>
+          <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#666', marginBottom: '8px', textAlign: 'left' }}>2.영상 분석</div>
           <aside className="button-column" ref={buttonColumnRef}>
             <div className="modeSelector">
             <div>
-              <h2 style={{ fontWeight: 'bold', color: '#333', fontSize: '16px' }}>비디오 분석하기:</h2>
+              <h2 style={{ fontWeight: 'bold', color: '#333', fontSize: '16px' }}>영상 분석하기:</h2>
               <div className="modeList">
                 {Object.entries(modes).map(([mode, {emoji, prompt}]) => (
                   <div key={mode}>
@@ -1022,14 +1023,11 @@ ${referenceContent}
                           setTimeout(() => scrollToColumn(buttonColumnRef), 100);
                         }
                       }}
-                      style={{width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                      style={{width: '100%', height: '48px', fontSize: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                       <span>
                         <span className="emoji">{emoji}</span> {mode}
                       </span>
-                      <span 
-                        style={{cursor: 'pointer', fontSize: '12px', transform: expandedModes[mode] ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s'}}>
-                        ▼
-                      </span>
+                      <ChevronDown isOpen={expandedModes[mode]} />
                     </button>
                     {expandedModes[mode] && (
                       <div style={{
@@ -1085,7 +1083,7 @@ ${referenceContent}
                   placeholder="Enter your Gemini API key..."
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
-                  style={{width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px'}}
+                  style={{width: '100%', height: '48px', padding: '8px', border: '1px solid #ccc', borderRadius: '12px'}}
                 />
               </div>
               <button
@@ -1169,28 +1167,37 @@ ${referenceContent}
         {/* 3️⃣ 세번째 칼럼: 영상 분석 및 번역 */}
         {/* ============================================ */}
         <div>
-          <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#666', marginBottom: '8px', textAlign: 'left' }}>3</div>
+          <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#666', marginBottom: '8px', textAlign: 'left' }}>3. 관점 분석</div>
           <div className="white-column" ref={whiteColumnRef}>
             <div className="modeList">
               <div style={{ marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <label style={{ fontWeight: 'bold', color: '#333', whiteSpace: 'nowrap', fontSize: '16px' }}>분석 언어:</label>
-                <select
-                  value={selectedLanguage}
-                  onChange={(e) => setSelectedLanguage(e.target.value)}
-                  style={{
-                    padding: '8px 12px',
-                    border: '1px solid #ccc',
-                    borderRadius: '4px',
-                    fontSize: '14px',
-                    backgroundColor: 'white',
-                    color: '#333',
-                    flex: 1
-                  }}
-                >
-                  <option value="한국어">한국어</option>
-                  <option value="일본어">일본어</option>
-                  <option value="영어">영어</option>
-                </select>
+                <div style={{ position: 'relative', flex: 1 }}>
+                  <select
+                    value={selectedLanguage}
+                    onChange={(e) => setSelectedLanguage(e.target.value)}
+                    style={{
+                      padding: '8px 40px 8px 12px',
+                      border: '1px solid #ccc',
+                      borderRadius: '12px',
+                      fontSize: '14px',
+                      backgroundColor: 'white',
+                      color: '#333',
+                      width: '100%',
+                      height: '48px',
+                      appearance: 'none',
+                      WebkitAppearance: 'none',
+                      MozAppearance: 'none'
+                    }}
+                  >
+                    <option value="한국어">한국어</option>
+                    <option value="일본어">일본어</option>
+                    <option value="영어">영어</option>
+                  </select>
+                  <div style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+                    <ChevronDown isOpen={false} />
+                  </div>
+                </div>
               </div>
 
               {Object.entries(analysisTypes).map(([type, prompt]) => (
@@ -1210,16 +1217,12 @@ ${referenceContent}
                         setTimeout(() => scrollToColumn(whiteColumnRef), 100);
                       }
                     }}
-                    style={{width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}
+                    style={{width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '16px'}}
                   >
                     <span>
                       <span className="emoji">{type === '커스텀' ? '🔧' : type === '역사적 관점' ? '🏛️' : type === '과학적 관점' ? '🧪' : type === '바이럴 쇼츠용' ? '🔥' : '📝'}</span> {type}
                     </span>
-                    <span 
-                      style={{cursor: 'pointer', fontSize: '12px', transform: expandedAnalysis === type ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s'}}
-                    >
-                      ▼
-                    </span>
+                    <ChevronDown isOpen={expandedAnalysis === type} />
                   </button>
                   {expandedAnalysis === type && (
                     <div style={{
@@ -1269,6 +1272,7 @@ ${referenceContent}
             <div style={{ marginTop: '20px' }}>
               <button
                 className="button generateButton"
+                style={{ fontSize: '16px' }}
                 onClick={() => {
                   if (expandedAnalysis) {
                     handleAnalyzeContent(expandedAnalysis);
@@ -1316,28 +1320,37 @@ ${referenceContent}
         {/* 4️⃣ 네번째 칼럼: 대사 생성 및 스타일 변경 */}
         {/* ============================================ */}
         <div>
-          <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#666', marginBottom: '8px', textAlign: 'left' }}>4</div>
+          <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#666', marginBottom: '8px', textAlign: 'left' }}>4. 대사 쓰기</div>
           <div className="fourth-column" ref={fourthColumnRef}>
             <div className="modeList">
               <div style={{ marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <label style={{ fontWeight: 'bold', color: '#333', whiteSpace: 'nowrap' }}>대사 언어:</label>
-                <select
-                  value={selectedLanguage2}
-                  onChange={(e) => setSelectedLanguage2(e.target.value)}
-                  style={{
-                    padding: '8px 12px',
-                    border: '1px solid #ccc',
-                    borderRadius: '4px',
-                    fontSize: '14px',
-                    backgroundColor: 'white',
-                    color: '#333',
-                    flex: 1
-                  }}
-                >
-                  <option value="한국어">한국어</option>
-                  <option value="일본어">일본어</option>
-                  <option value="영어">영어</option>
-                </select>
+                <div style={{ position: 'relative', flex: 1 }}>
+                  <select
+                    value={selectedLanguage2}
+                    onChange={(e) => setSelectedLanguage2(e.target.value)}
+                    style={{
+                      padding: '8px 40px 8px 12px',
+                      border: '1px solid #ccc',
+                      borderRadius: '12px',
+                      fontSize: '14px',
+                      backgroundColor: 'white',
+                      color: '#333',
+                      width: '100%',
+                      height: '48px',
+                      appearance: 'none',
+                      WebkitAppearance: 'none',
+                      MozAppearance: 'none'
+                    }}
+                  >
+                    <option value="한국어">한국어</option>
+                    <option value="일본어">일본어</option>
+                    <option value="영어">영어</option>
+                  </select>
+                  <div style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+                    <ChevronDown isOpen={false} />
+                  </div>
+                </div>
               </div>
 
               {Object.entries(analysisTypes2).map(([type, prompt]) => (
@@ -1357,16 +1370,12 @@ ${referenceContent}
                         setTimeout(() => scrollToColumn(fourthColumnRef), 100);
                       }
                     }}
-                    style={{width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}
+                    style={{width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '16px'}}
                   >
                     <span>
                       <span className="emoji">{type === '커스텀' ? '🔧' : type === '3초 후킹' ? '⚡' : type === '정보력 만렙' ? '🧠' : type === '바이럴 대사' ? '💬' : '📝'}</span> {type}
                     </span>
-                    <span 
-                      style={{cursor: 'pointer', fontSize: '12px', transform: expandedAnalysis2 === type ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s'}}
-                    >
-                      ▼
-                    </span>
+                    <ChevronDown isOpen={expandedAnalysis2 === type} />
                   </button>
                   {expandedAnalysis2 === type && (
                     <div style={{
@@ -1416,6 +1425,7 @@ ${referenceContent}
             <div style={{ marginTop: '20px' }}>
               <button
                 className="button generateButton"
+                style={{ fontSize: '16px' }}
                 onClick={() => {
                   if (expandedAnalysis2) {
                     handleAnalyzeContent2(expandedAnalysis2);
@@ -1560,7 +1570,7 @@ ${referenceContent}
                     transition: 'background-color 0.2s'
                   }}
                   onMouseOver={(e) => e.target.style.backgroundColor = '#138496'}
-                  onMouseOut={(e) => e.target.style.backgroundColor = '#17a2b8'}
+                  onMouseOut={(e) => e.target.style.backgroundColor = '#7c3aed'}
                   disabled={Object.values(uploadedFiles).every(file => file === null)}
                 >
                   📝 이 예시를 기준으로 재작성하기
@@ -1603,7 +1613,7 @@ ${referenceContent}
         {/* 5️⃣ 다섯번째 칼럼: 음성 생성 (TTS) */}
         {/* ============================================ */}
         <div>
-          <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#666', marginBottom: '8px', textAlign: 'left' }}>5</div>
+          <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#666', marginBottom: '8px', textAlign: 'left' }}>5. 음성 생성</div>
           <div className="fifth-column" ref={fifthColumnRef}>
             <div style={{ marginBottom: '15px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
@@ -1618,7 +1628,7 @@ ${referenceContent}
                       width: '100%',
                       padding: '8px 12px',
                       border: '1px solid #ccc',
-                      borderRadius: '4px',
+                      borderRadius: '12px',
                       fontSize: '14px',
                       backgroundColor: 'white',
                       color: '#333',
@@ -1626,11 +1636,12 @@ ${referenceContent}
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',
-                      textAlign: 'left'
+                      textAlign: 'left',
+                      height: '48px'
                     }}
                   >
                     <span>{selectedVoice}</span>
-                    <span style={{ transform: showVoiceDropdown ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>▼</span>
+                    <ChevronDown isOpen={showVoiceDropdown} />
                   </button>
                   
                   {showVoiceDropdown && (
@@ -1798,8 +1809,8 @@ ${referenceContent}
                 marginTop: '0',
                 padding: '15px',
                 border: '1px solid #ccc',
-                borderRadius: '6px',
-                fontSize: '14px',
+                borderRadius: '12px',
+                fontSize: '16px',
                 fontFamily: 'inherit',
                 resize: 'vertical',
                 backgroundColor: 'white',
@@ -1810,6 +1821,7 @@ ${referenceContent}
             <div style={{ marginTop: '10px' }}>
               <button
                 className="button generateButton"
+                style={{ fontSize: '16px' }}
                 onClick={async () => {
                   if (!scriptText.trim()) {
                     alert('대사를 먼저 입력해주세요.');
@@ -2029,7 +2041,7 @@ ${referenceContent}
                         <div style={{
                           width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%`,
                           height: '100%',
-                          backgroundColor: '#007bff',
+                          backgroundColor: '#7c3aed',
                           transition: 'width 0.1s ease'
                         }} />
                       </div>
@@ -2064,7 +2076,7 @@ ${referenceContent}
                     }}
                     style={{
                       padding: '8px 12px',
-                      backgroundColor: '#28a745',
+                      backgroundColor: '#7c3aed',
                       color: 'white',
                       border: 'none',
                       borderRadius: '12px',
@@ -2072,7 +2084,8 @@ ${referenceContent}
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '4px'
+                      gap: '4px',
+                      fontWeight: 'normal'
                     }}
                   >
                     다운로드
@@ -2082,117 +2095,100 @@ ${referenceContent}
               
               {/* 무음 제거 컨트롤 */}
               {generatedAudio && (
-                <div style={{ marginTop: '10px' }}>
-                  <div style={{ textAlign: 'center', marginBottom: '10px' }}>
-                    <button
-                      onClick={() => setShowSilenceControls(!showSilenceControls)}
+                <div style={{ 
+                  backgroundColor: '#f8f9fa', 
+                  padding: '15px', 
+                  borderRadius: '8px',
+                  border: '1px solid #dee2e6',
+                  marginTop: '15px',
+                  marginBottom: '10px'
+                }}>
+                  <div style={{ marginBottom: '30px' }}>
+                    <label style={{ 
+                      display: 'block', 
+                      fontSize: '16px', 
+                      fontWeight: 'bold', 
+                      color: '#495057', 
+                      marginBottom: '23px' 
+                    }}>
+                      무음 감지 레벨: <span style={{ color: '#007bff' }}>{silenceThreshold} dB</span>
+                    </label>
+                    <input
+                      type="range"
+                      min={-100}
+                      max={0}
+                      step={1}
+                      value={silenceThreshold}
+                      onChange={(e) => setSilenceThreshold(Number(e.target.value))}
+                      disabled={isProcessingSilence}
                       style={{
-                        padding: '8px 16px',
-                        backgroundColor: '#17a2b8',
-                        color: 'white',
-                        border: 'none',
+                        width: '100%',
+                        height: '8px',
+                        backgroundColor: '#dee2e6',
                         borderRadius: '4px',
-                        fontSize: '14px',
-                        cursor: 'pointer',
-                        fontWeight: 'bold'
+                        appearance: 'none',
+                        cursor: isProcessingSilence ? 'not-allowed' : 'pointer'
                       }}
-                    >
-                      {showSilenceControls ? '🔼' : '🔽'} 무음 제거 설정
-                    </button>
+                    />
+                    <div style={{ 
+                      fontSize: '15px', 
+                      color: '#6c757d', 
+                      marginTop: '20px',
+                      textAlign: 'center',
+                      lineHeight: '1.8'
+                    }}>
+                      ⏩⏩⏩ 숫자가 0 으로 갈수록<br />무음처리가 더 많이됩니다.
+                    </div>
                   </div>
                   
-                  {showSilenceControls && (
-                    <div style={{ 
-                      backgroundColor: '#f8f9fa', 
-                      padding: '15px', 
-                      borderRadius: '8px',
-                      border: '1px solid #dee2e6',
-                      marginBottom: '10px'
-                    }}>
-                      <div style={{ marginBottom: '15px' }}>
-                        <label style={{ 
-                          display: 'block', 
-                          fontSize: '14px', 
-                          fontWeight: 'bold', 
-                          color: '#495057', 
-                          marginBottom: '8px' 
-                        }}>
-                          무음 감지 레벨: <span style={{ color: '#007bff' }}>{silenceThreshold} dB</span>
-                        </label>
-                        <input
-                          type="range"
-                          min={-100}
-                          max={0}
-                          step={1}
-                          value={silenceThreshold}
-                          onChange={(e) => setSilenceThreshold(Number(e.target.value))}
-                          disabled={isProcessingSilence}
-                          style={{
-                            width: '100%',
-                            height: '8px',
-                            backgroundColor: '#dee2e6',
-                            borderRadius: '4px',
-                            appearance: 'none',
-                            cursor: isProcessingSilence ? 'not-allowed' : 'pointer'
-                          }}
-                        />
-                        <div style={{ 
-                          fontSize: '12px', 
-                          color: '#6c757d', 
-                          marginTop: '5px',
-                          textAlign: 'center'
-                        }}>
-                          ⏩⏩⏩ 숫자가 0 으로 갈수록 무음처리가 더 많이됩니다.
-                        </div>
-                      </div>
-                      
-                      <button
-                        onClick={handleSilenceRemoval}
-                        disabled={isProcessingSilence}
-                        style={{
-                          width: '100%',
-                          padding: '10px 16px',
-                          backgroundColor: isProcessingSilence ? '#6c757d' : '#28a745',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          fontSize: '14px',
-                          cursor: isProcessingSilence ? 'not-allowed' : 'pointer',
-                          fontWeight: 'bold'
-                        }}
-                      >
-                        {isProcessingSilence ? '🔄 처리 중...' : '🔇 무음 제거 실행'}
-                      </button>
-                    </div>
-                  )}
+                  <button
+                    onClick={handleSilenceRemoval}
+                    disabled={isProcessingSilence}
+                    style={{
+                      width: '100%',
+                      padding: '10px 16px',
+                      backgroundColor: isProcessingSilence ? '#6c757d' : '#7c3aed',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '12px',
+                      fontSize: '14px',
+                      cursor: isProcessingSilence ? 'not-allowed' : 'pointer',
+                      fontWeight: 'normal',
+                      height: '48px'
+                    }}
+                  >
+                    {isProcessingSilence ? '🔄 처리 중...' : '🔇 무음 제거 실행'}
+                  </button>
+                </div>
+              )}
                   
-                  {/* 처리된 오디오 플레이어 */}
-                  {processedAudio && (
-                    <div style={{ 
-                      backgroundColor: '#f8f9fa', 
-                      border: '1px solid #dee2e6', 
-                      borderRadius: '8px', 
-                      padding: '15px',
-                      marginTop: '15px'
-                    }}>
-                      <div style={{ 
-                        fontSize: '16px', 
-                        fontWeight: 'bold', 
-                        color: '#28a745', 
-                        marginBottom: '15px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px'
-                      }}>
-                        🎵 무음 제거된 음성
-                      </div>
+              {/* 처리된 오디오 플레이어 */}
+              {processedAudio && (
+                <div style={{ 
+                  backgroundColor: '#f8f9fa', 
+                  border: '1px solid #dee2e6', 
+                  borderRadius: '8px', 
+                  padding: '15px',
+                  marginTop: '15px'
+                }}>
+                  <div style={{ 
+                    fontSize: '16px', 
+                    fontWeight: 'bold', 
+                    color: '#000000', 
+                    marginBottom: '15px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    🎵 무음 제거된 음성
+                  </div>
                       
-                      <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '15px',
-                        marginBottom: '15px'
-                      }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '15px',
+                    marginBottom: '15px'
+                  }}>
                         {/* 플레이/일시정지 버튼 */}
                         <button
                           onClick={handleProcessedAudioPlay}
@@ -2318,7 +2314,7 @@ ${referenceContent}
                           }}
                           style={{
                             padding: '8px 12px',
-                            backgroundColor: '#28a745',
+                            backgroundColor: '#7c3aed',
                             color: 'white',
                             border: 'none',
                             borderRadius: '12px',
@@ -2327,14 +2323,12 @@ ${referenceContent}
                             display: 'flex',
                             alignItems: 'center',
                             gap: '4px',
-                            fontWeight: 'bold'
+                            fontWeight: 'normal'
                           }}
                         >
                           다운로드
                         </button>
-                      </div>
-                    </div>
-                  )}
+                  </div>
                 </div>
               )}
             </div>
@@ -2345,7 +2339,7 @@ ${referenceContent}
         {/* 6️⃣ 여섯번째 칼럼: 관련 영상 키워드 검색 */}
         {/* ============================================ */}
         <div>
-          <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#666', marginBottom: '8px', textAlign: 'left' }}>6</div>
+          <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#666', marginBottom: '8px', textAlign: 'left' }}>6. 관련 영상 더 찾기</div>
           <div className="sixth-column" ref={sixthColumnRef}>
             <div style={{ marginBottom: '15px' }}>
               <h3 style={{ fontWeight: 'bold', color: '#333', fontSize: '16px', margin: 0 }}>관련 영상 더 찾기</h3>
@@ -2356,7 +2350,7 @@ ${referenceContent}
                 className="button generateButton"
                 onClick={handleKeywordExtraction}
                 disabled={!apiKey.trim() || !youtubeVideoId || isExtractingKeywords}
-                style={{ width: '100%', marginBottom: '15px' }}
+                style={{ width: '100%', marginBottom: '15px', fontSize: '16px' }}
               >
                 {isExtractingKeywords ? '🔄 키워드 추출 중...' : '🔍 영상의 키워드 추출'}
               </button>
@@ -2368,13 +2362,13 @@ ${referenceContent}
                 padding: '15px',
                 background: extractedKeywords ? '#f8f9fa' : '#fafafa',
                 border: '1px solid #dee2e6',
-                borderRadius: '6px',
+                borderRadius: '12px',
                 color: '#333'
               }}>
                 <h4 style={{ 
                   marginBottom: '10px', 
                   color: '#333', 
-                  fontSize: '14px',
+                  fontSize: '16px',
                   fontWeight: 'bold'
                 }}>
                   추출된 키워드:
@@ -2389,7 +2383,7 @@ ${referenceContent}
                         alignItems: 'center',
                         marginBottom: '8px',
                         padding: '6px 0',
-                        fontSize: '13px',
+                        fontSize: '16px',
                         color: '#333'
                       }}>
                         <span style={{ flex: 1 }}>
@@ -2431,8 +2425,8 @@ ${referenceContent}
                   ) : (
                     <div style={{ 
                       color: '#999',
-                      fontSize: '13px',
-                      lineHeight: '1.8'
+                      fontSize: '16px',
+                      lineHeight: '1.5'
                     }}>
                       키워드 추출 버튼을 눌러서 영상의 키워드를 추출해보세요.
                     </div>
@@ -2446,7 +2440,8 @@ ${referenceContent}
               onClick={() => {
                 alert('관련 영상 검색 (준비 중)');
                 setTimeout(() => scrollToColumn(sixthColumnRef), 100);
-              }}>
+              }}
+              style={{ fontSize: '16px' }}>
               🔍 홈으로 가서 관련 영상 더 찾기
             </button>
             
@@ -2455,10 +2450,10 @@ ${referenceContent}
               padding: '10px',
               backgroundColor: '#fff3cd',
               border: '1px solid #ffeaa7',
-              borderRadius: '4px',
-              fontSize: '12px',
+              borderRadius: '12px',
+              fontSize: '14px',
               color: '#856404',
-              lineHeight: '1.4'
+              lineHeight: '1.5'
             }}>
               ⚠️ 홈으로 이동하면 이곳의 내용이 전부 새로고침됩니다. 중요한 정보는 다운로드와 복사해놓으세요
             </div>

@@ -26,7 +26,7 @@ export interface TTSResponse {
  */
 export async function callGeminiTTS(request: TTSRequest): Promise<TTSResponse> {
   console.log('🎵 Gemini TTS API 호출 시작:', {
-    text: request.text.substring(0, 50) + '...',
+    text: '"' + request.text.substring(0, 50) + '..."',
     voiceName: request.voiceName,
     hasApiKey: !!request.apiKey
   });
@@ -34,7 +34,7 @@ export async function callGeminiTTS(request: TTSRequest): Promise<TTSResponse> {
   const requestBody = {
     contents: [{
       parts: [{
-        text: request.text // 사용자가 입력한 대사
+        text: request.text // 사용자가 입력한 대사 (이미 voiceMapping에서 따옴표 처리됨)
       }]
     }],
     generationConfig: {
@@ -67,13 +67,22 @@ export async function callGeminiTTS(request: TTSRequest): Promise<TTSResponse> {
       console.error('❌ TTS API 에러 응답:', {
         status: response.status,
         statusText: response.statusText,
-        errorText
+        errorText,
+        url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent',
+        apiKeyLength: request.apiKey ? request.apiKey.length : 0,
+        hasApiKey: !!request.apiKey
       });
-      throw new Error(`TTS API 에러: ${response.status} ${response.statusText}`);
+      
+      if (response.status === 403) {
+        throw new Error(`API 키 인증 실패: ${response.status}. API 키가 유효한지, TTS 권한이 있는지 확인해주세요. 에러 세부사항: ${errorText}`);
+      }
+      
+      throw new Error(`TTS API 에러: ${response.status} ${response.statusText}. 세부사항: ${errorText}`);
     }
 
     const data: TTSResponse = await response.json();
     console.log('✅ TTS API 성공적으로 응답 받음');
+    console.log('🔍 TTS 응답 구조 확인:', JSON.stringify(data, null, 2));
     
     return data;
   } catch (error) {

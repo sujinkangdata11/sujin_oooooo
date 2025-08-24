@@ -52,6 +52,7 @@ main {
 
 main {
   padding: 20px !important;
+  padding-bottom: 100px !important;
   background: var(--background) !important;
   color: var(--text) !important;
   min-height: 100vh !important;
@@ -407,9 +408,10 @@ main.layout-split {
   background: none;
   outline: 1px solid var(--border);
   white-space: nowrap;
-  border-radius: 8px;
+  border-radius: 12px;
   min-width: fit-content;
   width: 100%;
+  height: 48px;
 }
 .modeList .button:hover {
   background: var(--border);
@@ -428,6 +430,8 @@ main.layout-split {
   background: var(--highlight);
   width: 100%;
   border: 1px solid var(--border);
+  height: 48px;
+  border-radius: 12px;
 }
 
 .backButton {

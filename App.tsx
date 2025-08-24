@@ -1295,24 +1295,90 @@ ${referenceContent}
           </div>
           
           {analysisResult && (
-            <div style={{
-              marginTop: '20px',
-              padding: '15px',
-              background: '#f8f9fa',
-              border: '1px solid #dee2e6',
-              borderRadius: '6px',
-              color: '#333'
-            }}>
-              <h4 style={{ marginBottom: '10px', color: '#333' }}>
-                분석 결과 ({selectedAnalysisType}):
-              </h4>
+            <div>
+              {/* Download and Copy buttons - 블럭 밖으로 이동 */}
               <div style={{ 
-                whiteSpace: 'pre-wrap', 
-                lineHeight: '1.7',
-                fontSize: '15px',
+                display: 'flex', 
+                gap: '10px', 
+                marginTop: '20px',
+                marginBottom: '10px'
+              }}>
+                <button
+                  onClick={() => {
+                    const content = analysisResult.replace(/\\n/g, '\n');
+                    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `분석결과_${selectedAnalysisType}_${new Date().toISOString().split('T')[0]}.txt`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                  }}
+                  style={{
+                    padding: '8px 12px',
+                    backgroundColor: '#7c3aed',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '12px',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    fontWeight: 'normal',
+                    height: '48px'
+                  }}
+                >
+                  📄 텍스트 다운받기
+                </button>
+                
+                <button
+                  onClick={() => {
+                    const content = analysisResult.replace(/\\n/g, '\n');
+                    navigator.clipboard.writeText(content).then(() => {
+                      // 복사 완료 피드백
+                      const btn = document.activeElement as HTMLButtonElement;
+                      const originalText = btn.innerHTML;
+                      btn.innerHTML = '✅ 복사완료';
+                      setTimeout(() => {
+                        btn.innerHTML = originalText;
+                      }, 2000);
+                    });
+                  }}
+                  style={{
+                    padding: '8px 12px',
+                    backgroundColor: '#7c3aed',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '12px',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    fontWeight: 'normal',
+                    height: '48px'
+                  }}
+                >
+                  📋 복사하기
+                </button>
+              </div>
+              
+              <div style={{
+                padding: '15px',
+                background: '#f8f9fa',
+                border: '1px solid #dee2e6',
+                borderRadius: '6px',
                 color: '#333'
               }}>
-                {analysisResult.replace(/\\n/g, '\n')}
+                <h4 style={{ marginBottom: '10px', color: '#333' }}>
+                  분석 결과 ({selectedAnalysisType}):
+                </h4>
+                
+                <div style={{ 
+                  whiteSpace: 'pre-wrap', 
+                  lineHeight: '1.7',
+                  fontSize: '15px',
+                  color: '#333'
+                }}>
+                  {analysisResult.replace(/\\n/g, '\n')}
+                </div>
               </div>
             </div>
           )}

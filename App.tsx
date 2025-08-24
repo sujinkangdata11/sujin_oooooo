@@ -1036,9 +1036,9 @@ ${referenceContent}
                         borderTop: 'none',
                         borderRadius: '0 0 4px 4px',
                         padding: '15px',
-                        fontSize: '13px',
+                        fontSize: '15px',
                         color: 'var(--text)',
-                        lineHeight: '1.4'
+                        lineHeight: '1.7'
                       }}>
                         {mode === '커스텀' ? (
                           <div>
@@ -1054,9 +1054,10 @@ ${referenceContent}
                                 borderRadius: '4px',
                                 background: 'var(--highlight)',
                                 color: 'var(--text)',
-                                fontSize: '13px',
+                                fontSize: '15px',
                                 fontFamily: 'inherit',
-                                resize: 'vertical'
+                                resize: 'vertical',
+                                lineHeight: '1.7'
                               }}
                             />
                           </div>
@@ -1231,9 +1232,9 @@ ${referenceContent}
                       borderTop: 'none',
                       borderRadius: '0 0 4px 4px',
                       padding: '15px',
-                      fontSize: '13px',
+                      fontSize: '15px',
                       color: 'var(--text)',
-                      lineHeight: '1.4'
+                      lineHeight: '1.7'
                     }}>
                       {type === '커스텀' ? (
                         <div>
@@ -1249,9 +1250,10 @@ ${referenceContent}
                               borderRadius: '4px',
                               background: 'var(--highlight)',
                               color: 'var(--text)',
-                              fontSize: '13px',
+                              fontSize: '15px',
                               fontFamily: 'inherit',
-                              resize: 'vertical'
+                              resize: 'vertical',
+                              lineHeight: '1.7'
                             }}
                           />
                         </div>
@@ -1306,8 +1308,8 @@ ${referenceContent}
               </h4>
               <div style={{ 
                 whiteSpace: 'pre-wrap', 
-                lineHeight: '1.6',
-                fontSize: '14px',
+                lineHeight: '1.7',
+                fontSize: '15px',
                 color: '#333'
               }}>
                 {analysisResult.replace(/\\n/g, '\n')}
@@ -1384,9 +1386,9 @@ ${referenceContent}
                       borderTop: 'none',
                       borderRadius: '0 0 4px 4px',
                       padding: '15px',
-                      fontSize: '13px',
+                      fontSize: '15px',
                       color: 'var(--text)',
-                      lineHeight: '1.4'
+                      lineHeight: '1.7'
                     }}>
                       {type === '커스텀' ? (
                         <div>
@@ -1402,9 +1404,10 @@ ${referenceContent}
                               borderRadius: '4px',
                               background: 'var(--highlight)',
                               color: 'var(--text)',
-                              fontSize: '13px',
+                              fontSize: '15px',
                               fontFamily: 'inherit',
-                              resize: 'vertical'
+                              resize: 'vertical',
+                              lineHeight: '1.7'
                             }}
                           />
                         </div>
@@ -1460,8 +1463,8 @@ ${referenceContent}
                 </h4>
                 <div style={{ 
                   whiteSpace: 'pre-wrap', 
-                  lineHeight: '1.6',
-                  fontSize: '14px',
+                  lineHeight: '1.7',
+                  fontSize: '15px',
                   color: '#333'
                 }}>
                   {analysisResult2.replace(/\\n/g, '\n')}
@@ -1470,15 +1473,16 @@ ${referenceContent}
               
               <div style={{
                 marginTop: '15px',
-                padding: '12px',
+                padding: '20px',
                 background: '#e8f4f8',
                 border: '1px solid #bee5eb',
-                borderRadius: '6px',
+                borderRadius: '12px',
                 color: '#0c5460',
                 fontSize: '13px'
               }}>
-                <div style={{ marginBottom: '15px' }}>
-                  이 대사를 내 스타일로 바꾸고싶다면, 잘된 예시 3개를 올려주세요
+                <div style={{ marginBottom: '15px', fontSize: '16px', lineHeight: '1.5' }}>
+                  이 대사를 내 스타일로 바꾸고 싶다면,<br/>
+                  잘된 예시 3개를 올려주세요
                 </div>
                 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -1489,13 +1493,16 @@ ${referenceContent}
                           padding: '8px 12px',
                           background: 'white',
                           border: '1px solid #bee5eb',
-                          borderRadius: '4px',
+                          borderRadius: '12px',
                           color: '#0c5460',
-                          fontSize: '12px',
+                          fontSize: '15px',
                           cursor: 'pointer',
                           transition: 'background-color 0.2s',
-                          display: 'inline-block',
-                          textAlign: 'center'
+                          display: 'flex',
+                          textAlign: 'center',
+                          height: '48px',
+                          alignItems: 'center',
+                          justifyContent: 'center'
                         }}
                         onMouseOver={(e) => e.target.style.backgroundColor = '#f0f9ff'}
                         onMouseOut={(e) => e.target.style.backgroundColor = 'white'}>
@@ -1520,11 +1527,12 @@ ${referenceContent}
                           padding: '8px 12px',
                           background: '#f0f9ff',
                           border: '1px solid #bee5eb',
-                          borderRadius: '4px'
+                          borderRadius: '12px',
+                          height: '48px'
                         }}>
                           <span style={{ 
                             color: '#0c5460', 
-                            fontSize: '12px',
+                            fontSize: '15px',
                             flex: 1,
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
@@ -1538,7 +1546,7 @@ ${referenceContent}
                               background: 'transparent',
                               border: 'none',
                               color: '#dc3545',
-                              fontSize: '12px',
+                              fontSize: '15px',
                               cursor: 'pointer',
                               marginLeft: '8px',
                               padding: '2px 6px',
@@ -1560,16 +1568,17 @@ ${referenceContent}
                   style={{
                     marginTop: '12px',
                     padding: '10px 16px',
-                    background: '#17a2b8',
+                    background: '#7c3aed',
                     color: 'white',
                     border: 'none',
-                    borderRadius: '6px',
-                    fontSize: '13px',
+                    borderRadius: '12px',
+                    fontSize: '15px',
                     cursor: 'pointer',
                     width: '100%',
-                    transition: 'background-color 0.2s'
+                    transition: 'background-color 0.2s',
+                    height: '48px'
                   }}
-                  onMouseOver={(e) => e.target.style.backgroundColor = '#138496'}
+                  onMouseOver={(e) => e.target.style.backgroundColor = '#6366f1'}
                   onMouseOut={(e) => e.target.style.backgroundColor = '#7c3aed'}
                   disabled={Object.values(uploadedFiles).every(file => file === null)}
                 >
@@ -1596,8 +1605,8 @@ ${referenceContent}
                     </h4>
                     <div style={{ 
                       whiteSpace: 'pre-wrap', 
-                      lineHeight: '1.6',
-                      fontSize: '14px',
+                      lineHeight: '1.7',
+                      fontSize: '15px',
                       color: '#333'
                     }}>
                       {rewrittenResult.replace(/\\n/g, '\n')}
@@ -1814,7 +1823,8 @@ ${referenceContent}
                 fontFamily: 'inherit',
                 resize: 'vertical',
                 backgroundColor: 'white',
-                color: '#333'
+                color: '#333',
+                lineHeight: '1.8'
               }}
             />
             
@@ -2418,7 +2428,7 @@ ${referenceContent}
                           }}
                           title="키워드 복사"
                         >
-                          📋
+                          📋 복사
                         </button>
                       </div>
                     ))

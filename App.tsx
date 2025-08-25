@@ -2718,7 +2718,6 @@ ${referenceContent}
                       <option value={2}>2단어</option>
                       <option value={3}>3단어</option>
                       <option value={4}>4단어</option>
-                      <option value={5}>5단어</option>
                     </select>
                   </div>
 

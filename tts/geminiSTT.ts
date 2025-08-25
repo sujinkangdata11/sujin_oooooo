@@ -85,6 +85,70 @@ export async function generateSRTWithGeminiSTT(request: STTRequest): Promise<STT
     const audioDuration = request.audioDuration || getAudioDurationFromBuffer(request.audioBuffer);
     console.log('🎵 계산된 오디오 길이:', audioDuration, '초');
 
+    ///// 단어 수에 따른 동적 설명 생성
+    const generateTimingDescriptionByWordCount = (wordCount: number): string => {
+      const descriptions = {
+        1: "각 자막이 한 단어를 포함하며, 그 단어의 실제 발음 시간에 맞춰서",
+        2: "각 자막이 두 단어를 포함하며, 그 두 단어의 실제 발음 시간에 맞춰서",
+        3: "각 자막이 세 단어를 포함하며, 그 세 단어의 실제 발음 시간에 맞춰서",
+        4: "각 자막이 네 단어를 포함하며, 그 네 단어의 실제 발음 시간에 맞춰서"
+      };
+      
+      return descriptions[wordCount as keyof typeof descriptions] || descriptions[1];
+    };
+
+    ///// 단어 수에 따른 동적 예시 생성
+    const generateExampleByWordCount = (wordCount: number): string => {
+      const examples = {
+        1: `    1
+    00:00:00,100 --> 00:00:00,600
+    안녕
+
+    2
+    00:00:00,601 --> 00:00:01,100
+    하세요
+
+    3
+    00:00:01,101 --> 00:00:01,800
+    반갑습니다`,
+        2: `    1
+    00:00:00,100 --> 00:00:00,800
+    안녕 하세요
+
+    2
+    00:00:00,801 --> 00:00:01,500
+    반갑습니다 오늘은
+
+    3
+    00:00:01,501 --> 00:00:02,200
+    좋은 날씨네요`,
+        3: `    1
+    00:00:00,100 --> 00:00:01,000
+    안녕 하세요 반갑습니다
+
+    2
+    00:00:01,001 --> 00:00:01,900
+    오늘은 좋은 날씨네요
+
+    3
+    00:00:01,901 --> 00:00:02,800
+    함께 즐거운 시간을`,
+        4: `    1
+    00:00:00,100 --> 00:00:01,100
+    안녕 하세요 반갑습니다 오늘은
+
+    2
+    00:00:01,101 --> 00:00:02,100
+    좋은 날씨네요 함께 즐거운
+
+    3
+    00:00:02,101 --> 00:00:03,100
+    시간을 보내도록 하겠습니다`
+      };
+      
+      return examples[wordCount as keyof typeof examples] || examples[1];
+    };
+
     // SRT 생성 프롬프트
     const prompt = `다음 음성을 정확한 SRT 자막 형식으로 변환해주세요. 
 
@@ -95,26 +159,18 @@ export async function generateSRTWithGeminiSTT(request: STTRequest): Promise<STT
     4. 빈 줄
 
     **중요한 타이밍 규칙:**
-    - 각 단어가 실제로 발음되기 시작하는 정확한 시점부터 발음이 끝나는 시점까지만 표시
+    - ${generateTimingDescriptionByWordCount(request.wordsPerSubtitle)} 발음이 시작되는 시점부터 끝나는 시점까지만 표시
     - 자막 시간대가 절대 겹치지 않도록 연속적으로 배치
     - 이전 자막이 끝나는 시간과 다음 자막이 시작하는 시간이 최대한 가깝게 (빈 구간 최소화)
 
-    올바른 예시 (겹치지 않고 연속적으로 이어지는 형태):
-    1
-    00:00:00,100 --> 00:00:00,600
-    안녕
-
-    2
-    00:00:00,601 --> 00:00:01,100
-    하세요
-
-    3
-    00:00:01,101 --> 00:00:01,800
-    반갑습니다
+    올바른 예시 (${request.wordsPerSubtitle}단어 기준, 겹치지 않고 연속적으로 이어지는 형태):
+${generateExampleByWordCount(request.wordsPerSubtitle)}
 
     한 자막당 최대 ${request.wordsPerSubtitle}개의 단어로 제한해주세요.
     각 단어의 실제 발음 시간에 정확히 맞춰 타이밍을 설정해주세요.
-    **중요: 이 오디오는 정확히 ${audioDuration}초 길이입니다. 자막 시간이 ${audioDuration}초를 넘지 않도록 해주세요.**`;
+    **매우 중요: 이 오디오는 정확히 ${audioDuration}초 길이입니다. 
+    마지막 자막이 반드시 ${audioDuration}초 근처에서 끝나야 합니다.
+    자막 시간이 ${audioDuration}초를 넘지 않도록 해주세요.**`;
     
     console.log('🤖 Gemini에게 SRT 생성 요청 중...');
     console.log('📝 프롬프트:', prompt);

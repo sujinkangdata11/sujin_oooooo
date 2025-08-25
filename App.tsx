@@ -21,6 +21,8 @@ import c from 'classnames';
 import {useRef, useState, useEffect} from 'react';
 import {generateContent} from './api';
 import {generateVoice, playAudioBuffer} from './tts';
+///// Gemini STT import 추가 /////
+import { generateSRTWithGeminiSTT, validateAndCleanSRT } from './tts/geminiSTT';
 import functions from './functions';
 import modes from './modes';
 import {timeToSecs} from './utils';
@@ -271,6 +273,13 @@ ${examplesText}
   const [processedCurrentAudio, setProcessedCurrentAudio] = useState<HTMLAudioElement | null>(null);
   const [processedCurrentTime, setProcessedCurrentTime] = useState<number>(0);
   const [processedDuration, setProcessedDuration] = useState<number>(0);
+  
+  ///// SRT 자막 관련 상태 - 시작 /////
+  const [wordsPerSubtitle, setWordsPerSubtitle] = useState<number>(3);
+  const [isGeneratingSRT, setIsGeneratingSRT] = useState<boolean>(false);
+  const [selectedAudioSource, setSelectedAudioSource] = useState<'original' | 'processed'>('original');
+  ///// SRT 자막 관련 상태 - 끝 /////
+  
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [duration, setDuration] = useState<number>(0);
   const [theme] = useState(
@@ -626,6 +635,165 @@ ${analysisContent}
       setIsExtractingKeywords(false);
     }
   };
+
+  ///// SRT 자막 함수들 - 시작 /////
+  // Gemini STT import 추가
+  // import { generateSRTWithGeminiSTT, validateAndCleanSRT } from './tts/geminiSTT';
+  const generateSRTSubtitles = (text: string, wordsPerSub: number, audioDuration: number): string => {
+    //// 더 정확한 단어 분할 (한국어+영어 모두 지원)
+    const words = text.trim()
+      .split(/\s+/) // 여러 공백을 하나로 처리
+      .filter(word => word.trim() !== '')
+      .filter(word => word.length > 0);
+    
+    const totalWords = words.length;
+    
+    console.log(`🔍 SRT 생성 디버그:`, {
+      원본텍스트길이: text.length,
+      분할된단어수: totalWords,
+      단어당자막수: wordsPerSub,
+      오디오길이: audioDuration,
+      단어들: words.slice(0, 10) // 처음 10개 단어만 로그
+    });
+    
+    if (totalWords === 0) return '';
+    
+    const subtitles = [];
+    let subtitleIndex = 1;
+    
+    for (let i = 0; i < totalWords; i += wordsPerSub) {
+      //// 정확히 wordsPerSub 개수만큼만 가져오기
+      const currentWords = words.slice(i, i + wordsPerSub);
+      const wordGroup = currentWords.join(' ');
+      
+      //// 시간 계산
+      const startTime = (i / totalWords) * audioDuration;
+      const endTime = Math.min(((i + wordsPerSub) / totalWords) * audioDuration, audioDuration);
+      
+      //// SRT 시간 포맷
+      const formatSRTTime = (seconds: number): string => {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const secs = Math.floor(seconds % 60);
+        const milliseconds = Math.floor((seconds % 1) * 1000);
+        
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')},${milliseconds.toString().padStart(3, '0')}`;
+      };
+      
+      //// 자막 블록 생성
+      subtitles.push(`${subtitleIndex}
+${formatSRTTime(startTime)} --> ${formatSRTTime(endTime)}
+${wordGroup}
+`);
+      
+      console.log(`📝 자막 ${subtitleIndex}:`, {
+        단어수: currentWords.length,
+        단어들: currentWords,
+        자막내용: wordGroup,
+        시작시간: formatSRTTime(startTime),
+        끝시간: formatSRTTime(endTime)
+      });
+      
+      subtitleIndex++;
+    }
+    
+    console.log(`✅ SRT 생성 완료: ${subtitles.length}개 자막 생성됨`);
+    return subtitles.join('\n');
+  };
+
+  const handleDownloadSRT = async () => {
+    if (!scriptText || (!generatedAudio && !processedAudio)) {
+      alert('먼저 음성을 생성해주세요.');
+      return;
+    }
+
+    //// 선택된 오디오 소스 확인
+    if (selectedAudioSource === 'processed' && !processedAudio) {
+      alert('무음제거된 음성이 없습니다. 먼저 무음제거를 실행해주세요.');
+      return;
+    }
+
+    //// API 키 확인 (기존 TTS와 동일한 방식 사용)
+    if (!apiKey.trim()) {
+      alert('Gemini API 키를 입력해주세요.');
+      return;
+    }
+
+    setIsGeneratingSRT(true);
+    
+    try {
+      //// 선택된 오디오 소스 결정
+      const audioToUse = selectedAudioSource === 'processed' ? processedAudio : generatedAudio;
+      const audioTypeLabel = selectedAudioSource === 'processed' ? 'processed' : 'original';
+      
+      console.log('🎙️ Gemini STT로 정확한 SRT 생성 시작:', {
+        audioSource: selectedAudioSource,
+        audioSize: audioToUse?.byteLength,
+        wordsPerSubtitle
+      });
+
+      //// Gemini STT API 호출로 정확한 SRT 생성
+      const sttResult = await generateSRTWithGeminiSTT({
+        audioBuffer: audioToUse!,
+        apiKey: apiKey.trim(),
+        wordsPerSubtitle: wordsPerSubtitle
+      });
+
+      if (!sttResult.success || !sttResult.srtContent) {
+        throw new Error(sttResult.error || 'Gemini STT에서 SRT를 생성하지 못했습니다.');
+      }
+
+      //// SRT 내용 검증 및 정리
+      const cleanedSRT = validateAndCleanSRT(sttResult.srtContent);
+      
+      //// SRT 파일 다운로드
+      const blob = new Blob([cleanedSRT], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${selectedVoice}-${audioTypeLabel}-subtitles-${wordsPerSubtitle}words-gemini.srt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      URL.revokeObjectURL(url);
+      
+      console.log('✅ Gemini STT 기반 SRT 다운로드 완료!');
+
+    } catch (error) {
+      console.error('❌ Gemini STT SRT 생성 실패:', error);
+      
+      //// 실패시 기존 방식으로 폴백
+      console.log('⏪ 기존 방식으로 폴백 시도...');
+      try {
+        const audioDuration = selectedAudioSource === 'processed' ? processedDuration : duration;
+        const audioTypeLabel = selectedAudioSource === 'processed' ? 'processed' : 'original';
+        
+        const fallbackDuration = audioDuration || (scriptText.length / 10);
+        const srtContent = generateSRTSubtitles(scriptText, wordsPerSubtitle, fallbackDuration);
+        
+        const blob = new Blob([srtContent], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${selectedVoice}-${audioTypeLabel}-subtitles-${wordsPerSubtitle}words-fallback.srt`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        URL.revokeObjectURL(url);
+        
+        alert('Gemini STT 실패로 기본 방식을 사용했습니다. 타임스탬프가 부정확할 수 있습니다.');
+      } catch (fallbackError) {
+        alert('SRT 파일 생성에 완전히 실패했습니다.');
+      }
+    } finally {
+      setIsGeneratingSRT(false);
+    }
+  };
+  ///// SRT 자막 함수들 - 끝 /////
 
   const handleSilenceRemoval = async () => {
     if (!generatedAudio) return;
@@ -2470,6 +2638,119 @@ ${referenceContent}
                   </div>
                 </div>
               )}
+
+              {/* ///// SRT 자막 내보내기 블럭 - 시작 ///// */}
+              {(generatedAudio || processedAudio) && scriptText && (
+                <div style={{ 
+                  backgroundColor: '#f8f9fa', 
+                  border: '1px solid #dee2e6', 
+                  borderRadius: '8px', 
+                  padding: '15px',
+                  marginTop: '15px'
+                }}>
+                  <div style={{ 
+                    fontSize: '16px', 
+                    fontWeight: 'bold', 
+                    color: '#000000', 
+                    marginBottom: '15px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    📝 자막 SRT로 내보내기
+                  </div>
+                  
+                  {/* ///// 오디오 소스 선택 드롭다운 ///// */}
+                  <div style={{ marginBottom: '15px' }}>
+                    <label style={{ 
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      color: '#333',
+                      marginBottom: '8px',
+                      display: 'block'
+                    }}>
+                      오디오 소스:
+                    </label>
+                    <select 
+                      value={selectedAudioSource}
+                      onChange={(e) => setSelectedAudioSource(e.target.value as 'original' | 'processed')}
+                      style={{
+                        padding: '8px 12px',
+                        border: '1px solid #ddd',
+                        borderRadius: '4px',
+                        fontSize: '14px',
+                        backgroundColor: 'white',
+                        cursor: 'pointer',
+                        minWidth: '140px'
+                      }}
+                    >
+                      <option value="original">원본 음성</option>
+                      <option value="processed" disabled={!processedAudio}>
+                        무음제거 음성 {!processedAudio ? '(비활성화)' : ''}
+                      </option>
+                    </select>
+                  </div>
+                  
+                  <div style={{ marginBottom: '15px' }}>
+                    <label style={{ 
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      color: '#333',
+                      marginBottom: '8px',
+                      display: 'block'
+                    }}>
+                      한 자막당 단어 수:
+                    </label>
+                    <select 
+                      value={wordsPerSubtitle}
+                      onChange={(e) => setWordsPerSubtitle(Number(e.target.value))}
+                      style={{
+                        padding: '8px 12px',
+                        border: '1px solid #ddd',
+                        borderRadius: '4px',
+                        fontSize: '14px',
+                        backgroundColor: 'white',
+                        cursor: 'pointer',
+                        minWidth: '120px'
+                      }}
+                    >
+                      <option value={1}>1단어</option>
+                      <option value={2}>2단어</option>
+                      <option value={3}>3단어</option>
+                      <option value={4}>4단어</option>
+                      <option value={5}>5단어</option>
+                    </select>
+                  </div>
+
+                  <button
+                    onClick={handleDownloadSRT}
+                    disabled={isGeneratingSRT}
+                    style={{
+                      padding: '12px 20px',
+                      backgroundColor: isGeneratingSRT ? '#ccc' : '#7c3aed1a',
+                      color: isGeneratingSRT ? '#666' : '#7c3aed',
+                      border: '1px solid rgba(124,58,237,.2)',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      cursor: isGeneratingSRT ? 'not-allowed' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      width: '100%',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    {isGeneratingSRT ? (
+                      <>🔄 SRT 생성 중...</>
+                    ) : (
+                      <>📄 자막 SRT로 내보내기</>
+                    )}
+                  </button>
+                </div>
+              )}
+              {/* ///// SRT 자막 내보내기 블럭 - 끝 ///// */}
+
             </div>
           </div>
         </div>

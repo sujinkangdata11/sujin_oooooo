@@ -14,6 +14,8 @@ export default defineConfig(({ mode }) => {
         }
       },
       server: {
+        port: 5174,
+        strictPort: true,
         hmr: {
           timeout: 10000,
           overlay: false

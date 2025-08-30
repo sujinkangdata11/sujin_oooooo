@@ -307,7 +307,7 @@ ${examplesText}
   };
 
   // 순환 로딩 메시지 컴포넌트
-  const LoadingMessage = ({ type = 'default' }: { type?: 'default' | 'voice' }) => {
+  const LoadingMessage = ({ type = 'default' }: { type?: 'default' | 'voice' | 'srt' }) => {
     const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
     
     const defaultMessages = [
@@ -321,8 +321,14 @@ ${examplesText}
       "조금만 기다려주세요",
       "곧 음성이 나옵니다."
     ];
+
+    const srtMessages = [
+      "SRT 작업중...",
+      "부정확할 수 있어요.",
+      "최대 30초 이상 걸려요."
+    ];
     
-    const loadingMessages = type === 'voice' ? voiceMessages : defaultMessages;
+    const loadingMessages = type === 'srt' ? srtMessages : (type === 'voice' ? voiceMessages : defaultMessages);
 
     useEffect(() => {
       const interval = setInterval(() => {
@@ -2110,9 +2116,15 @@ ${referenceContent}
                   try {
                     console.log(`${selectedVoice} 음성으로 TTS 생성 시작...`);
                     
+                    //// 특수문자 삭제 ////
+                    const cleanedText = scriptText
+                      .replace(/[@#$%^&*()]/g, '')
+                      .replace(/:\s*:/g, ':');
+                    //// 특수문자 삭제 ////
+                    
                     // TTS 모듈을 사용하여 음성 생성 (재생하지 않음)
                     const result = await generateVoice({
-                      text: scriptText,
+                      text: cleanedText,
                       userVoice: selectedVoice,
                       apiKey: apiKey
                     });
@@ -2444,7 +2456,10 @@ ${referenceContent}
                       fontSize: '14px',
                       cursor: isProcessingSilence ? 'not-allowed' : 'pointer',
                       fontWeight: 'normal',
-                      height: '48px'
+                      height: '48px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
                     }}
                   >
                     {isProcessingSilence ? '🔄 처리 중...' : '🔇 무음 제거 실행'}
@@ -2657,7 +2672,7 @@ ${referenceContent}
                     alignItems: 'center',
                     gap: '8px'
                   }}>
-                    📝 자막 SRT로 내보내기
+                    📝 자막 SRT로 내보내기 (베타,매우 부정확함)
                   </div>
                   
                   {/* ///// 오디오 소스 선택 드롭다운 ///// */}
@@ -2671,24 +2686,35 @@ ${referenceContent}
                     }}>
                       오디오 소스:
                     </label>
-                    <select 
-                      value={selectedAudioSource}
-                      onChange={(e) => setSelectedAudioSource(e.target.value as 'original' | 'processed')}
-                      style={{
-                        padding: '8px 12px',
-                        border: '1px solid #ddd',
-                        borderRadius: '4px',
-                        fontSize: '14px',
-                        backgroundColor: 'white',
-                        cursor: 'pointer',
-                        minWidth: '140px'
-                      }}
-                    >
-                      <option value="original">원본 음성</option>
-                      <option value="processed" disabled={!processedAudio}>
-                        무음제거 음성 {!processedAudio ? '(비활성화)' : ''}
-                      </option>
-                    </select>
+                    <div style={{ position: 'relative' }}>
+                      <select 
+                        value={selectedAudioSource}
+                        onChange={(e) => setSelectedAudioSource(e.target.value as 'original' | 'processed')}
+                        style={{
+                          padding: '8px 12px',
+                          border: '1px solid #ddd',
+                          borderRadius: '12px',
+                          fontSize: '14px',
+                          backgroundColor: 'white',
+                          cursor: 'pointer',
+                          minWidth: '140px',
+                          height: '48px',
+                          appearance: 'none',
+                          WebkitAppearance: 'none',
+                          MozAppearance: 'none',
+                          paddingRight: '30px',
+                          backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e")`,
+                          backgroundRepeat: 'no-repeat',
+                          backgroundPosition: 'right 8px center',
+                          backgroundSize: '16px'
+                        }}
+                      >
+                        <option value="original">원본 음성</option>
+                        <option value="processed" disabled={!processedAudio}>
+                          무음제거 음성 {!processedAudio ? '(비활성화)' : ''}
+                        </option>
+                      </select>
+                    </div>
                   </div>
                   
                   <div style={{ marginBottom: '15px' }}>
@@ -2701,24 +2727,35 @@ ${referenceContent}
                     }}>
                       한 자막당 단어 수:
                     </label>
-                    <select 
-                      value={wordsPerSubtitle}
-                      onChange={(e) => setWordsPerSubtitle(Number(e.target.value))}
-                      style={{
-                        padding: '8px 12px',
-                        border: '1px solid #ddd',
-                        borderRadius: '4px',
-                        fontSize: '14px',
-                        backgroundColor: 'white',
-                        cursor: 'pointer',
-                        minWidth: '120px'
-                      }}
-                    >
-                      <option value={1}>1단어</option>
-                      <option value={2}>2단어</option>
-                      <option value={3}>3단어</option>
-                      <option value={4}>4단어</option>
-                    </select>
+                    <div style={{ position: 'relative' }}>
+                      <select 
+                        value={wordsPerSubtitle}
+                        onChange={(e) => setWordsPerSubtitle(Number(e.target.value))}
+                        style={{
+                          padding: '8px 12px',
+                          border: '1px solid #ddd',
+                          borderRadius: '12px',
+                          fontSize: '14px',
+                          backgroundColor: 'white',
+                          cursor: 'pointer',
+                          minWidth: '120px',
+                          height: '48px',
+                          appearance: 'none',
+                          WebkitAppearance: 'none',
+                          MozAppearance: 'none',
+                          paddingRight: '30px',
+                          backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e")`,
+                          backgroundRepeat: 'no-repeat',
+                          backgroundPosition: 'right 8px center',
+                          backgroundSize: '16px'
+                        }}
+                      >
+                        <option value={1}>1단어</option>
+                        <option value={2}>2단어</option>
+                        <option value={3}>3단어</option>
+                        <option value={4}>4단어</option>
+                      </select>
+                    </div>
                   </div>
 
                   <button
@@ -2746,6 +2783,9 @@ ${referenceContent}
                       <>📄 자막 SRT로 내보내기</>
                     )}
                   </button>
+
+                  {/* SRT 로딩 메시지 */}
+                  {isGeneratingSRT && <LoadingMessage type="srt" />}
                 </div>
               )}
               {/* ///// SRT 자막 내보내기 블럭 - 끝 ///// */}

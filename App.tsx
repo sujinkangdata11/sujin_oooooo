@@ -2786,6 +2786,31 @@ ${referenceContent}
 
                   {/* SRT 로딩 메시지 */}
                   {isGeneratingSRT && <LoadingMessage type="srt" />}
+                  
+                  {/* SRT 사용법 안내 메시지 */}
+                  <div style={{
+                    marginTop: '15px',
+                    padding: '12px',
+                    backgroundColor: '#fff3cd',
+                    border: '1px solid #ffeaa7',
+                    borderRadius: '12px',
+                    fontSize: '14px',
+                    color: '#856404',
+                    lineHeight: '1.5'
+                  }}>
+                    ⚠️ 이 자막 SRT를 사용하려면 반드시 아래 사용법을 읽으세요. <a 
+                      href="https://www.google.com" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{
+                        color: '#007bff',
+                        textDecoration: 'underline',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      사용 방법 보기
+                    </a>
+                  </div>
                 </div>
               )}
               {/* ///// SRT 자막 내보내기 블럭 - 끝 ///// */}

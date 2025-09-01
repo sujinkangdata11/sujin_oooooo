@@ -919,34 +919,7 @@ ${wordGroup}
             e.target.style.borderColor = '#ccc';
           }}
         >
-          {isPlaying ? (
-            <div style={{
-              width: '12px',
-              height: '12px',
-              display: 'flex',
-              gap: '2px'
-            }}>
-              <div style={{
-                width: '4px',
-                height: '12px',
-                backgroundColor: 'black'
-              }}></div>
-              <div style={{
-                width: '4px',
-                height: '12px',
-                backgroundColor: 'black'
-              }}></div>
-            </div>
-          ) : (
-            <div style={{
-              width: '0',
-              height: '0',
-              borderLeft: '10px solid black',
-              borderTop: '6px solid transparent',
-              borderBottom: '6px solid transparent',
-              marginLeft: '2px'
-            }}></div>
-          )}
+          {isPlaying ? '⏸️' : '▶️'}
         </button>
         
         {/* 오디오 정보와 프로그레스바 */}
@@ -2036,32 +2009,7 @@ ${referenceContent}
                                 transition: 'all 0.2s ease'
                               }}
                             >
-                              {isPreviewPlaying === voice ? (
-                                <div style={{
-                                  display: 'flex',
-                                  gap: '2px'
-                                }}>
-                                  <div style={{
-                                    width: '4px',
-                                    height: '10px',
-                                    backgroundColor: '#000000'
-                                  }}></div>
-                                  <div style={{
-                                    width: '4px',
-                                    height: '10px',
-                                    backgroundColor: '#000000'
-                                  }}></div>
-                                </div>
-                              ) : (
-                                <div style={{
-                                  width: '0',
-                                  height: '0',
-                                  borderLeft: '6px solid black',
-                                  borderTop: '4px solid transparent',
-                                  borderBottom: '4px solid transparent',
-                                  marginLeft: '1px'
-                                }}></div>
-                              )}
+                              {isPreviewPlaying === voice ? '⏸️' : '▶️'}
                             </button>
                           </div>
                         ))}
@@ -2126,7 +2074,7 @@ ${referenceContent}
                     const result = await generateVoice({
                       text: cleanedText,
                       userVoice: selectedVoice,
-                      apiKey: apiKey
+                      apiKey: apiKey.trim()
                     });
                     
                     if (result.success && result.audioBuffer) {
@@ -2262,34 +2210,7 @@ ${referenceContent}
                       e.target.style.borderColor = '#ccc';
                     }}
                   >
-                    {isPlaying ? (
-                      <div style={{
-                        width: '12px',
-                        height: '12px',
-                        display: 'flex',
-                        gap: '2px'
-                      }}>
-                        <div style={{
-                          width: '4px',
-                          height: '12px',
-                          backgroundColor: 'black'
-                        }}></div>
-                        <div style={{
-                          width: '4px',
-                          height: '12px',
-                          backgroundColor: 'black'
-                        }}></div>
-                      </div>
-                    ) : (
-                      <div style={{
-                        width: '0',
-                        height: '0',
-                        borderLeft: '10px solid black',
-                        borderTop: '6px solid transparent',
-                        borderBottom: '6px solid transparent',
-                        marginLeft: '2px'
-                      }}></div>
-                    )}
+                    {isPlaying ? '⏸️' : '▶️'}
                   </button>
                   
                   {/* 오디오 정보와 프로그레스바 */}
@@ -2520,34 +2441,7 @@ ${referenceContent}
                             e.target.style.borderColor = '#ccc';
                           }}
                         >
-                          {processedAudioPlaying ? (
-                            <div style={{
-                              width: '12px',
-                              height: '12px',
-                              display: 'flex',
-                              gap: '2px'
-                            }}>
-                              <div style={{
-                                width: '4px',
-                                height: '12px',
-                                backgroundColor: 'black'
-                              }}></div>
-                              <div style={{
-                                width: '4px',
-                                height: '12px',
-                                backgroundColor: 'black'
-                              }}></div>
-                            </div>
-                          ) : (
-                            <div style={{
-                              width: '0',
-                              height: '0',
-                              borderLeft: '10px solid black',
-                              borderTop: '6px solid transparent',
-                              borderBottom: '6px solid transparent',
-                              marginLeft: '2px'
-                            }}></div>
-                          )}
+                          {processedAudioPlaying ? '⏸️' : '▶️'}
                         </button>
                         
                         {/* 오디오 정보와 프로그레스바 */}

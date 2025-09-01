@@ -11,13 +11,16 @@ export interface TTSRequest {
 
 export interface TTSResponse {
   candidates: Array<{
-    content: {
+    content?: {
       parts: Array<{
-        inlineData: {
+        inlineData?: {
           data: string; // Base64 encoded PCM data
-        }
+        };
+        data?: string; // Alternative path for audio data
       }>
-    }
+    };
+    finishReason?: string; // Add finishReason field
+    index?: number;
   }>
 }
 
@@ -109,5 +112,36 @@ export function convertBase64ToPCM(base64Data: string): Uint8Array {
  * TTS 응답에서 오디오 데이터 추출
  */
 export function extractAudioData(ttsResponse: TTSResponse): string | null {
-  return ttsResponse.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data || null;
+  console.log('🔍 오디오 데이터 추출 시도:', JSON.stringify(ttsResponse, null, 2));
+  
+  // 다양한 경로 시도
+  const candidate = ttsResponse.candidates?.[0];
+  if (!candidate) {
+    console.error('❌ candidates가 없습니다');
+    return null;
+  }
+  
+  console.log('🔍 candidate 구조:', JSON.stringify(candidate, null, 2));
+  
+  if (candidate.finishReason === 'OTHER') {
+    console.error('❌ finishReason이 OTHER입니다. API 요청에 문제가 있을 수 있습니다.');
+    return null;
+  }
+  
+  // 일반적인 경로
+  const audioData = candidate.content?.parts?.[0]?.inlineData?.data;
+  if (audioData) {
+    console.log('✅ 오디오 데이터 찾음 (일반 경로)');
+    return audioData;
+  }
+  
+  // 다른 가능한 경로들
+  const altAudioData = candidate.content?.parts?.[0]?.data;
+  if (altAudioData) {
+    console.log('✅ 오디오 데이터 찾음 (대체 경로)');
+    return altAudioData;
+  }
+  
+  console.error('❌ 오디오 데이터를 찾을 수 없습니다');
+  return null;
 }

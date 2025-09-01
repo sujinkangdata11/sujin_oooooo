@@ -98,8 +98,8 @@ export function getGeminiVoiceName(userVoice: string): string {
  * 최종 텍스트 생성 (보이스 프롬프트 + 대사)
  */
 export function createTTSText(userVoice: string, script: string): string {
-  const config = getVoiceConfig(userVoice);
-  return `${config.voicePrompt} "${script}"`;
+  // TTS에서는 프롬프트 없이 대사만 사용
+  return script;
 }
 
 /**

@@ -415,14 +415,24 @@ ${examplesText}
     // 다양한 응답 구조 체크
     console.log('전체 응답 구조:', JSON.stringify(resp, null, 2));
     
-    const call = resp.candidates?.[0]?.content?.parts?.[0]?.functionCall || 
-                 resp.candidates?.[0]?.content?.parts?.[0]?.function_call ||
-                 resp.functionCalls?.[0] ||
-                 resp.function_calls?.[0];
-    console.log('함수 호출:', call);
+    // 모든 함수 호출을 처리
+    const parts = resp.candidates?.[0]?.content?.parts || [];
+    const functionCalls = parts.filter(part => part.functionCall);
+    console.log('함수 호출들:', functionCalls);
 
-    if (call && call.name === 'set_timecodes') {
-      setTimecodes(call.args);
+    if (functionCalls.length > 0) {
+      const firstCall = functionCalls[0].functionCall;
+      if (firstCall.name === 'set_timecodes' && firstCall.args.timecodes) {
+        // 새로운 형식: timecodes 배열
+        setTimecodeList(firstCall.args.timecodes);
+      } else {
+        // 기존 형식: 개별 함수 호출
+        const timecodes = functionCalls.map(part => ({
+          time: part.functionCall.args.time,
+          text: part.functionCall.args.text
+        }));
+        setTimecodeList(timecodes);
+      }
     } else if (resp.candidates?.[0]?.content?.parts?.[0]?.text) {
       // 함수 호출이 없으면 일반 텍스트 응답을 timecode로 처리
       const responseText = resp.candidates[0].content.parts[0].text;
@@ -518,7 +528,7 @@ ${allText}
       );
 
       console.log('분석 응답:', response);
-      const analysisText = response.candidates?.[0]?.content?.parts?.[0]?.text || '분석 결과를 가져올 수 없습니다.';
+      const analysisText = response.text || response.candidates?.[0]?.content?.parts?.[0]?.text || '분석 결과를 가져올 수 없습니다.';
       setAnalysisResult(analysisText);
       
     } catch (error) {
@@ -576,7 +586,7 @@ ${referenceContent}
       );
 
       console.log('분석 응답2:', response);
-      const analysisText = response.candidates?.[0]?.content?.parts?.[0]?.text || '분석 결과를 가져올 수 없습니다.';
+      const analysisText = response.text || response.candidates?.[0]?.content?.parts?.[0]?.text || '분석 결과를 가져올 수 없습니다.';
       setAnalysisResult2(analysisText);
       
     } catch (error) {
@@ -1159,7 +1169,7 @@ ${referenceContent}
       );
 
       console.log('분석 응답3:', response);
-      const analysisText = response.candidates?.[0]?.content?.parts?.[0]?.text || '분석 결과를 가져올 수 없습니다.';
+      const analysisText = response.text || response.candidates?.[0]?.content?.parts?.[0]?.text || '분석 결과를 가져올 수 없습니다.';
       setAnalysisResult3(analysisText);
       
     } catch (error) {
